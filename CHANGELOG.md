@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- Optimized `matmul` in `utils.py` by caching the transposed matrix `B` for faster execution.
+- Improved leverage computation with `_hat_diagonal` to significantly save memory by avoiding full matrix construction.
+- Integrated `statsmodels.lowess` as a fast wrapper for residual analysis, preserving the pure Python version as a fallback.
+- Replaced `random.shuffle` with `numpy.random.RandomState.permutation` for deterministic and faster cross-validation splitting.
+
 ## [1.0.0] - 2026-06-08
 
 ### Added
