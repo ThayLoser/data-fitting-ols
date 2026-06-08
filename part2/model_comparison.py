@@ -1,4 +1,7 @@
 # So sánh các mô hình
+import pandas as pd
+import math
+
 def model_comparison(model_list):
     rows = []
     for entry in model_list:
@@ -28,12 +31,3 @@ def model_comparison(model_list):
 
     df = pd.DataFrame(rows)
     return df
-
-# Gọi hàm
-comparison_table = model_comparison([
-    {"model_name": "OLS Full",          "y_pred": y_pred_full,  "y_true": y_test_raw},
-    {"model_name": "OLS Chọn Biến",     "y_pred": y_pred_short, "y_true": y_test_raw},
-    {"model_name": "Ridge Regression",  "y_pred": y_pred_ridge, "y_true": y_test_raw},
-])
-
-print(comparison_table.to_string(index=True))

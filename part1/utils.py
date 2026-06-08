@@ -12,7 +12,11 @@ def matmul(A, B):
         return [sum(a * b for a, b in zip(row, B)) for row in A]
     
     # Nhân hai ma trận
-    return [[sum(a * b for a, b in zip(row, col)) for col in zip(*B)] for row in A]
+    B_t = list(zip(*B))
+    return [
+        [sum(a * b for a, b in zip(row, col)) for col in B_t]
+        for row in A
+    ]
 
 
 def get_inverse(matrix):

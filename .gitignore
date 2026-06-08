@@ -1,9 +1,11 @@
-# Byte-compiled / optimized / DLL files
 backup/
+update-readme.md
+create-readme.md
+
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
 *$py.class
-part1/old_files/
 
 # C extensions
 *.so
