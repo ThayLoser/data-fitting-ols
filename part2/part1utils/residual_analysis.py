@@ -3,9 +3,32 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from scipy.special import erfinv
 from typing import Dict, List, Optional, Union, TypedDict
-from .utils import matmul
-from .ols import hat_matrix
+from .utils import matmul, get_inverse
+try:
+    from statsmodels.nonparametric.smoothers_lowess import lowess
+except Exception:
+    lowess = None
 
+
+def _hat_diagonal(X: List[List[float]]) -> List[float]:
+    """Compute diagonal (leverage) of hat matrix H = X (X'X)^{-1} X' without building H.
+
+    Returns list h_ii where h_i = x_i @ (X'X)^{-1} @ x_i^T
+    """
+    # XT: k x n
+    XT = [list(col) for col in zip(*X)]
+    # XTX: k x k
+    XTX = matmul(XT, X)
+    # invert k x k
+    XTX_inv = get_inverse(XTX)
+    h_ii = []
+    for row in X:
+        # row is length k list
+        # compute row * XTX_inv -> length k
+        row_mul = matmul([row], XTX_inv)[0]
+        h_val = sum(a * b for a, b in zip(row_mul, row))
+        h_ii.append(h_val)
+    return h_ii
 def get_residual_diagnostics(X, y, beta_hat):
     """Hàm phụ trợ tính các phần dư phục vụ cho 4 biểu đồ."""
     n = len(y)
@@ -19,8 +42,8 @@ def get_residual_diagnostics(X, y, beta_hat):
     sigma2_hat = rss / (n - k)
     sigma_hat = math.sqrt(sigma2_hat)
 
-    H, _ = hat_matrix(X)
-    h_ii = [H[i][i] for i in range(n)]
+    # compute leverages exactly but without constructing full H (saves memory and time)
+    h_ii = _hat_diagonal(X)
 
     std_res = [
         r / (sigma_hat * math.sqrt(max(1.0 - h, 1e-12)))
@@ -64,8 +87,20 @@ def normal_ppf(p: float) -> float:
 
 def _lowess_simple(x: List[float], y: List[float], frac: float = 0.5) -> List[float]:
     """
-    LOWESS (Locally Weighted Scatterplot Smoothing) đơn giản.
+    LOWESS wrapper: prefer `statsmodels.lowess` for speed; fall back to
+    the original pure-Python implementation if statsmodels is unavailable.
     """
+    # Use statsmodels implementation when available (faster, C-optimized parts)
+    if lowess is not None:
+        try:
+            # return_sorted=False gives smoothed values aligned with input x order
+            y_smooth = lowess(endog=y, exog=x, frac=frac, return_sorted=False)
+            return list(y_smooth)
+        except Exception:
+            # fall through to pure-Python fallback
+            pass
+
+    # Fallback: original simple LOWESS (slower)
     n = len(x)
     r = max(1, int(frac * n))
     y_smooth = []

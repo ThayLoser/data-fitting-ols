@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 from ridge_lasso import ridge_fit
 from utils import matmul
@@ -6,9 +7,7 @@ from utils import matmul
 def kfold_cv(X, y, k, lam=0.0, fit_intercept=True):
     n = len(X)
     
-    indicies = list(range(n))
-    random.seed(42)
-    random.shuffle(indicies)
+    indicies = np.random.RandomState(42).permutation(n).tolist()
     
     fold_sizes = [n // k + (1 if i < n % k else 0) for i in range(k)]
     
