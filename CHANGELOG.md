@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Fix inconsistent in pdf content and code implementation .
+- Fixed inconsistencies between pdf content and code implementation.
 
 ## [1.0.1] - 2026-06-09
 
